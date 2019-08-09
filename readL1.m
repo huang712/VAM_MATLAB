@@ -1,5 +1,8 @@
 
-function [DDMobs,L1] = readL1(filename,ddm_index,sample_index)
+function [L1] = readL1(filename,ddm_index,sample_index)
+L1.filename = filename;
+L1.ddm_index = ddm_index;
+L1.index = sample_index;
 %read L1 DDM into DDMobs
 %ddm_index,sample_index are one based
 quality_flags = ncread(filename,'quality_flags');
@@ -31,6 +34,6 @@ L1.sp_dopp_error = sp_dopp_error(ddm_index,sample_index);
 Power_analog = ncread(filename,'power_analog');
 DDMobs = Power_analog(:,:,ddm_index,sample_index);
 DDMobs = DDMobs';%17x11
-DDMobs = reshape(DDMobs,[187 1]);
+L1.DDMobs = reshape(DDMobs,[187 1]);
 end
 

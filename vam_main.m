@@ -1,12 +1,7 @@
 %main function of VAM
 
-function [ANA] = vam_main(terms,scale,DDMtype,DDMcov,Iter,QC,BKG,CYGNSS,temp_path,int_size)
-
+function [ANA] = vam_main(terms,scale,DDMtype,DDMcov,Iter,QC,BKG,L1,temp_path,int_size)
 ANA = BKG;
-disp(['index = ',num2str(CYGNSS.index)]);
-
-%Read CYGNSS DDM obs
-[DDMobs,L1] = readL1(CYGNSS.filename,CYGNSS.ddm_index,CYGNSS.index);  
 
 %First Quality control 
 %----------------------------------------------------------------------
@@ -26,10 +21,9 @@ if (L1.SNR < QC.SNR_min)
 end
 
 %check if specular point(integration area) is inside the map
-size = int_size; %Now the area must be a square, must be larger than 120km x 120km, must be odd number!
 splat_index=find(abs(BKG.LAT_vec-L1.sp_ll(1))==min(abs(BKG.LAT_vec-L1.sp_ll(1))));
 splon_index=find(abs(BKG.LON_vec-L1.sp_ll(2))==min(abs(BKG.LON_vec-L1.sp_ll(2))));
-k=(size-1)/2;
+k=(int_size-1)/2;
 if(splat_index-k<1 || splat_index+k>length(BKG.LAT_vec) || splon_index-k<1 || splon_index+k>length(BKG.LON_vec))
     disp('Specular point is outside the map');return;
 end
@@ -48,7 +42,7 @@ end
 %Intergration area: nlat, nlon, npts, lon_vec, lat_vec, u, v, uv_bkg, uv_ana
 %----------------------------------------------------------------------
 resolution = 0.125;
-nlat = size; nlon = size;
+nlat = int_size; nlon = int_size;
 npts = nlat*nlon; %number of state in the integration area
 lat_vec = BKG.LAT_vec(splat_index-k:splat_index+k);
 lon_vec = BKG.LON_vec(splon_index-k:splon_index+k);
@@ -67,10 +61,10 @@ uv_ana = uv_bkg;
 %write index to config file for Forward model to read
 fid=fopen([temp_path,'config.txt'],'w');
 fprintf(fid,'%s\n',[temp_path,'uv_input.dat']); %wind field data
-fprintf(fid,'%s\n',CYGNSS.filename);
+fprintf(fid,'%s\n',L1.filename);
 fprintf(fid,'%s\n',temp_path);  %path to save DDMfm, Jacobian and indexLL
-fprintf(fid,'ddmIndex    = %d\n',CYGNSS.ddm_index-1);  %zero based
-fprintf(fid,'sampleIndex = %d\n',CYGNSS.index-1);  %zero based
+fprintf(fid,'ddmIndex    = %d\n',L1.ddm_index-1);  %zero based
+fprintf(fid,'sampleIndex = %d\n',L1.index-1);  %zero based
 fprintf(fid,'numPtsLon   = %d\n',nlon);  
 fprintf(fid,'numPtsLat   = %d\n',nlat);
 fprintf(fid,'lon_min_deg = %.3f\n',BKG.LON_vec(splon_index-k));
@@ -79,8 +73,9 @@ fprintf(fid,'resolution  = %.3f\n',resolution);
 fclose(fid);
 
 %write DDMobs to file
+DDMobs = L1.DDMobs;
 fid=fopen([temp_path,'DDMobs.dat'],'w');
-fwrite(fid,DDMobs,'double');
+fwrite(fid,L1.DDMobs,'double');
 fclose(fid);
 
 %choose DDM bins
@@ -95,8 +90,9 @@ elseif (strcmp(DDMtype,'rectangle')) %11x5 bins
 elseif (strcmp(DDMtype,'threshold')) %use 1/10 peak power as threshold
     bin_index = find(DDMobs>max(DDMobs)/10);
 elseif (strcmp(DDMtype,'amb_free'))
+    bin_index = [48 62 76 92 110 130 150];
     disp('Ambiguity free line mode is not working now');
-    return;
+    %return;
 end
 
 %DDM covariance
@@ -121,7 +117,7 @@ L2.lat_vec = lat_vec;
 
 %compute initial cost function
 %disp('Compute initial cost function')
-[J0,g0]=costFun(size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path);
+[J0,g0]=costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path);
 movefile([temp_path,'DDMfm.dat'],[temp_path,'DDMfm0.dat'])  %simulated DDM from background
 
 %Second quality control: compare DDMobs and DDMfm0 187*1
@@ -146,7 +142,7 @@ options = optimoptions(@fminunc,'Display','iter','Algorithm','quasi-newton',...
 
 disp('start minimization:')
 tic
-[uv_ana,Costval,exitflag,output]=fminunc(@(uv_ana) costFun(size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path),...
+[uv_ana,Costval,exitflag,output]=fminunc(@(uv_ana) costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path),...
     uv_ana,options); %minimization; gives the final uv_ana
 toc
 disp(output);
