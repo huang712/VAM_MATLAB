@@ -1,7 +1,8 @@
-%main function of VAM
+%Main function of VAM
 
-function [ANA] = vam_main(terms,scale,DDMtype,DDMcov,Iter,QC,BKG,L1,temp_path,int_size)
+function [ANA,flag] = vam_main(terms,scale,DDMtype,DDMcov,Iter,QC,BKG,L1,temp_path,int_size)
 ANA = BKG;
+flag = 1; %when pass QC, flag = 0
 
 %First Quality control 
 %----------------------------------------------------------------------
@@ -23,6 +24,7 @@ end
 %check if specular point(integration area) is inside the map
 splat_index=find(abs(BKG.LAT_vec-L1.sp_ll(1))==min(abs(BKG.LAT_vec-L1.sp_ll(1))));
 splon_index=find(abs(BKG.LON_vec-L1.sp_ll(2))==min(abs(BKG.LON_vec-L1.sp_ll(2))));
+splat_index=splat_index(1);splon_index=splon_index(1);
 k=(int_size-1)/2;
 if(splat_index-k<1 || splat_index+k>length(BKG.LAT_vec) || splon_index-k<1 || splon_index+k>length(BKG.LON_vec))
     disp('Specular point is outside the map');return;
@@ -154,8 +156,12 @@ v_ana = reshape(uv_ana(npts+1:npts*2),[nlon,nlat]);
 ANA.U(splon_index-k:splon_index+k,splat_index-k:splat_index+k) = u_ana;
 ANA.V(splon_index-k:splon_index+k,splat_index-k:splat_index+k) = v_ana;
 
-%ws_ana = sqrt(u_ana.^2+v_ana.^2);
-%figure;imagesc(lon_vec,lat_vec,ws_ana');set(gca,'YDir','normal');hold on
+%gross specular wind speed on Background and Analysis -- this is not the final one!
+WS_ana = sqrt(ANA.U.^2+ANA.V.^2);
+ws_sp_ana = WS_ana(splon_index,splat_index); %wind speed of analysis at specular point          
+disp(['Background wind speed = ',num2str(sp_ws),'; Analysis wind speed = ',num2str(ws_sp_ana)]);
+
+flag = 0;
 
 end
 

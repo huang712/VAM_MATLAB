@@ -31,6 +31,12 @@ sp_dopp_error = ncread(filename,'sp_dopp_error');   %in Hz
 L1.sp_delay_error = sp_delay_error(ddm_index,sample_index);
 L1.sp_dopp_error = sp_dopp_error(ddm_index,sample_index);
 
+L1.scNum = ncread(filename,'spacecraft_num');
+prn_code = ncread(filename,'prn_code');
+L1.prn_code = prn_code(ddm_index,sample_index);
+ddm_ant = ncread(filename,'ddm_ant');
+L1.ddm_ant = ddm_ant(ddm_index,sample_index);
+
 Power_analog = ncread(filename,'power_analog');
 DDMobs = Power_analog(:,:,ddm_index,sample_index);
 DDMobs = DDMobs';%17x11
