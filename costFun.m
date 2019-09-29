@@ -35,8 +35,13 @@ if (terms.ddm==1)
 
     %run forward model
     fm_path = '/users/fax/CYGNSS/VAM/CForwardModel_VAM/cmake-build-debug/CForwardmodel_VAM';
-    [~,~]=system([fm_path,' ',temp_path,'config.txt']);
-
+    [status,cmdout]=system([fm_path,' ',temp_path,'config.txt']); %status=0 means the command completed successfully
+    if(status~=0)
+        disp('The forward model does not run successfully with cmdout:');
+        disp(cmdout);
+    end
+    %disp(cmdout);
+    
     %read DDMfm
     fid2 = fopen([temp_path,'DDMfm.dat']);
     DDMfm= fread(fid2,'double'); %read DDMfm 187x1

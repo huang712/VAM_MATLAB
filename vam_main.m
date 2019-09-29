@@ -72,6 +72,8 @@ fprintf(fid,'numPtsLat   = %d\n',nlat);
 fprintf(fid,'lon_min_deg = %.3f\n',BKG.LON_vec(splon_index-k));
 fprintf(fid,'lat_min_deg = %.3f\n',BKG.LAT_vec(splat_index-k));
 fprintf(fid,'resolution  = %.3f\n',resolution);
+fprintf(fid,'JacobOnoff  = %d\n',1);
+
 fclose(fid);
 
 %write DDMobs to file
@@ -140,7 +142,7 @@ end
 %----------------------------------------------------------------------
 
 options = optimoptions(@fminunc,'Display','iter','Algorithm','quasi-newton',...
-    'GradObj','on','MaxIter',Iter.MaxIter,'MaxFunctionEvaluations',Iter.MaxFun,'TolX',Iter.Tol,'TolFun',Iter.Tol); %BFGS with gradient
+    'GradObj','on','MaxIterations',Iter.MaxIter,'MaxFunctionEvaluations',Iter.MaxFun,'TolX',Iter.Tol,'TolFun',Iter.Tol); %BFGS with gradient
 
 disp('start minimization:')
 tic
