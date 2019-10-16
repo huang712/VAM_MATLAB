@@ -73,7 +73,7 @@ fprintf(fid,'lon_min_deg = %.3f\n',BKG.LON_vec(splon_index-k));
 fprintf(fid,'lat_min_deg = %.3f\n',BKG.LAT_vec(splat_index-k));
 fprintf(fid,'resolution  = %.3f\n',resolution);
 fprintf(fid,'JacobOnoff  = %d\n',1);
-
+fprintf(fid,'thermalNoiseOnOff = %d\n',0);
 fclose(fid);
 
 %write DDMobs to file
