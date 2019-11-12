@@ -1,2 +1,2 @@
-# VAM_MATLAB
- main matlab scripts of VAM
+## VAM_MATLAB
+Main MATLAB scripts of VAM

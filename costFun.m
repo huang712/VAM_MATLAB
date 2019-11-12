@@ -1,4 +1,4 @@
-function [J,g] = costFun(size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path)
+function [J,g] = costFun(size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path,fm_path)
 %VAM cost function including background terms and observation terms
 
 %size is the number of points in one side of the region (might use global variable)
@@ -34,7 +34,6 @@ if (terms.ddm==1)
     fclose(fid1);
 
     %run forward model
-    fm_path = '/users/fax/CYGNSS/VAM/CForwardModel_VAM/cmake-build-debug/CForwardmodel_VAM';
     [status,cmdout]=system([fm_path,' ',temp_path,'config.txt']); %status=0 means the command completed successfully
     if(status~=0)
         disp('The forward model does not run successfully with cmdout:');

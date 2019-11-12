@@ -1,6 +1,6 @@
 %Main function of VAM
 
-function [ANA,flag] = vam_main(terms,scale,DDMtype,DDMcov,Iter,QC,BKG,L1,temp_path,int_size)
+function [ANA,flag] = vam_main(terms,scale,DDMtype,DDMcov,Iter,QC,BKG,L1,temp_path,fm_path,int_size)
 ANA = BKG;
 flag = 1; %when pass QC, flag = 0
 
@@ -92,7 +92,10 @@ elseif (strcmp(DDMtype,'rectangle')) %11x5 bins
     bin_index = a(round(L1.delay_bin):17,4:8);   
     bin_index = reshape(bin_index,[1 length(bin_index(:))]);
 elseif (strcmp(DDMtype,'threshold')) %use 1/10 peak power as threshold
+    a = reshape(1:187,[17 11]);
+    info_bins=reshape(a(4:17,:),[1 14*11]); %discard first three rows
     bin_index = find(DDMobs>max(DDMobs)/10);
+    bin_index = intersect(bin_index,info_bins);
 elseif (strcmp(DDMtype,'amb_free'))
     bin_index = [48 62 76 92 110 130 150];
     disp('Ambiguity free line mode is not working now');
@@ -121,7 +124,7 @@ L2.lat_vec = lat_vec;
 
 %compute initial cost function
 %disp('Compute initial cost function')
-[J0,g0]=costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path);
+[J0,g0]=costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path,fm_path);
 movefile([temp_path,'DDMfm.dat'],[temp_path,'DDMfm0.dat'])  %simulated DDM from background
 
 %Second quality control: compare DDMobs and DDMfm0 187*1
@@ -146,7 +149,7 @@ options = optimoptions(@fminunc,'Display','iter','Algorithm','quasi-newton',...
 
 disp('start minimization:')
 tic
-[uv_ana,Costval,exitflag,output]=fminunc(@(uv_ana) costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path),...
+[uv_ana,Costval,exitflag,output]=fminunc(@(uv_ana) costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path,fm_path),...
     uv_ana,options); %minimization; gives the final uv_ana
 toc
 disp(output);
