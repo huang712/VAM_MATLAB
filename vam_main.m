@@ -12,12 +12,12 @@ if (qfCYG(L1.flags)~=0)
 end
 
 if (L1.inc_angle > QC.inc_angle_max) 
-    disp('Incidence angle too large');
+    disp(['Large incidence angle: ',num2str(L1.inc_angle)]);
     return;
 end
 
 if (L1.SNR < QC.SNR_min) 
-    disp('Low SNR');
+    disp(['Low SNR: SNR = ',num2str(L1.SNR)]);
     return;
 end
 
@@ -35,7 +35,7 @@ end
 WS = sqrt(BKG.U.^2+BKG.V.^2);
 sp_ws=WS(splon_index,splat_index);
 if(sp_ws < QC.ws_min || sp_ws > QC.ws_max)
-    disp(['wind speed = ',num2str(sp_ws),'does not pass wind speed quality control']);
+    disp(['wind speed = ',num2str(sp_ws),' does not pass wind speed quality control']);
     return;
 end
 %----------------------------------------------------------------------
