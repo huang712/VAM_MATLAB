@@ -93,7 +93,7 @@ elseif (strcmp(DDMtype,'rectangle')) %11x5 bins
     bin_index = reshape(bin_index,[1 length(bin_index(:))]);
 elseif (strcmp(DDMtype,'threshold')) %use 1/10 peak power as threshold
     a = reshape(1:187,[17 11]);
-    info_bins=reshape(a(4:17,:),[1 14*11]); %discard first three rows
+    info_bins=reshape(a(4:17,3:9),[1 14*7]); %discard first three rows
     bin_index = find(DDMobs>max(DDMobs)/10);
     bin_index = intersect(bin_index,info_bins);
 elseif (strcmp(DDMtype,'amb_free'))
