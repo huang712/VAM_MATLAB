@@ -73,6 +73,7 @@ if (terms.ddm==1)
     gv=zeros(n/2,Nbin);
     gu(indexLL,:)=H';
     gv(indexLL,:)=H';
+    ws(ws==0)=0.01; %avoid zero wind speed
     for i=1:Nbin
         gu(:,i)=gu(:,i).*(u./ws); %chain rule: from wind speed to u,v
         gv(:,i)=gv(:,i).*(v./ws);
