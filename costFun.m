@@ -50,7 +50,7 @@ if (terms.ddm==1)
     Nbin=length(bin_index);
     DDMfm=DDMfm(bin_index);
     DDMobs=DDM.power(bin_index);
-    iR=DDM.iR(bin_index,bin_index);
+    iR=DDM.iR;
     Jddm=scale.ddm*(DDMfm-DDMobs)'*iR*(DDMfm-DDMobs);
 
     %gradient

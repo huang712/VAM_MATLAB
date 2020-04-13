@@ -107,8 +107,11 @@ if (strcmp(DDMcov.type,'constant'))
     DDM.iR = DDMcov.constant*eye(187);
 elseif (strcmp(DDMcov.type,'scale'))
     DDM.iR = diag(1./((DDMobs*DDMcov.scale).^2));
+    DDM.iR = DDM.iR(bin_index,bin_index);
 elseif (strcmp(DDMcov.type,'numerical'))
     DDM.iR = DDMcov.iR;
+elseif (strcmp(DDMcov.type,'model'))
+    DDM.iR = computeCov(DDMobs,bin_index,L1.delay_bin,L1.Doppler_bin,sp_ws,DDMcov.method,DDMcov.k_max);
 end
 
 %load DDM observation
