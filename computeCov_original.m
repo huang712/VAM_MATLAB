@@ -1,4 +1,5 @@
 function iR = computeCov_original(DDMobs,bin_index,sp_delay_bin,sp_doppler_bin,sp_ws,method,k_max)
+% Old version: using Covariance_parameter.mat (from ECMWF operational forecast)
 % compute DDMcovariance matrix using the empirical model
 % iR: inverse of the DDM covariance matrix
 % DDMobs in vector

@@ -46,7 +46,7 @@ Y=round(Y);
 % set(gca,'fontsize',16);
 
 %% Compute diagonal values
-% sigma2=(aY)^2+sigma2_n
+% sigma2=(aY^b)^2+sigma2_n
 a=zeros(1,N);
 b=zeros(1,N);
 
@@ -69,6 +69,11 @@ end
 sigma2=(a.*DDMobs(bin_index)'.^b).^2+sigma2_n; %1XN
 sigma=sqrt(sigma2);
 R(logical(eye(N)))=sigma2';
+
+if (strcmp(method,'diag')) %diagonal matrix
+    iR=inv(R);
+    return;
+end
 
 %% Compute off-diagonal values R(N,N)
 %sigma_ij=sigma_i*sigma_j*f

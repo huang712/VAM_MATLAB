@@ -1,4 +1,4 @@
-%Main function of VAM
+ %Main function of VAM
 
 function [ANA,flag] = vam_main(terms,scale,DDMtype,DDMcov,Iter,QC,BKG,L1,temp_path,fm_path,int_size)
 ANA = BKG;
