@@ -3,7 +3,7 @@ function [flag] = qfCYG(quality_flags)
 %flag: 1 - overall bad quality  
 %      0 - overall good quality 
 bit = dec2bin(quality_flags,29);
-bit=fliplr(bit);
+bit = fliplr(bit);
 
 if(bit(1)=='1') %overall quality
     flag = 1;

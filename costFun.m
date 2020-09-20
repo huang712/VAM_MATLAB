@@ -135,5 +135,6 @@ J=Jb+Jddm+Jl2+Jdiv+Jvor+Jlap;
 g=gb+gddm+gl2+gdiv+gvor+glap;
 disp(['J = ',num2str(J),', Jb = ',num2str(Jb),', Jddm = ',num2str(Jddm), ', Jl2 = ',num2str(Jl2),...
     ', Jdiv = ', num2str(Jdiv), ', Jvor = ', num2str(Jvor), ', Jlap = ', num2str(Jlap)]);
+
 end
 

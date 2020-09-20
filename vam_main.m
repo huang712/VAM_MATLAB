@@ -77,7 +77,7 @@ fprintf(fid,'thermalNoiseOnOff = %d\n',0);
 fclose(fid);
 
 %write DDMobs to file
-DDMobs = L1.DDMobs;
+DDMobs = L1.DDMobs; %187x1
 fid=fopen([temp_path,'DDMobs.dat'],'w');
 fwrite(fid,L1.DDMobs,'double');
 fclose(fid);
@@ -127,6 +127,7 @@ L2.lat_vec = lat_vec;
 
 %compute initial cost function
 %disp('Compute initial cost function')
+
 [J0,g0]=costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path,fm_path);
 movefile([temp_path,'DDMfm.dat'],[temp_path,'DDMfm0.dat'])  %simulated DDM from background
 
@@ -134,10 +135,18 @@ movefile([temp_path,'DDMfm.dat'],[temp_path,'DDMfm0.dat'])  %simulated DDM from 
 %----------------------------------------------------------------------
 %1. absolute average relative power difference  2. correlation coefficient
 fid=fopen([temp_path,'DDMfm0.dat']);
-DDMfm0= fread(fid,'double'); %read DDMfm 187x1
+DDMfm0 = fread(fid,'double'); %read DDMfm 187x1
 fclose(fid);
-diff = mean(abs((DDMobs(bin_index)-DDMfm0(bin_index))./DDMobs(bin_index))); %relative power difference
-correlation = corr2(DDMobs(bin_index),DDMfm0(bin_index)); %correlation coefficient
+
+%relative power difference
+diff_DDM1 = (DDMobs(bin_index)-DDMfm0(bin_index))./DDMobs(bin_index);
+diff_DDM2 = (DDMfm0(bin_index)-DDMobs(bin_index))./DDMfm0(bin_index);
+diff1 = mean(abs(diff_DDM1)); 
+diff2 = mean(abs(diff_DDM2)); 
+diff = max(diff1,diff2);
+
+%correlation coefficient
+correlation = corr2(DDMobs(bin_index),DDMfm0(bin_index)); 
 disp(['Relative power difference = ',num2str(diff),'; correlation = ',num2str(correlation)]);
 if (diff > QC.diff_max || correlation < QC.correlation_min)
     disp('Does not pass background check: ')
