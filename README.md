@@ -1,5 +1,5 @@
 ## VAM_MATLAB
-This the MATLAB scripts of VAM developed by Feixiong Huang from Purdue University. (contact email: huang712@purdue.edu)
+This is the MATLAB scripts of VAM developed by Feixiong Huang from Purdue University. (contact email: huang712@purdue.edu)
 
 The VAM is used for the assimilation of GNSS-R DDMs. For more information, please refer to the paper:
 
