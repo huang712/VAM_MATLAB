@@ -3,7 +3,7 @@ This the MATLAB scripts of VAM developed by Feixiong Huang from Purdue Universit
 
 The VAM is used for the assimilation of GNSS-R DDMs. For more information, please refer to the paper:
 
-*Huang, Feixiong, et al. "A Forward Model for Data Assimilation of GNSS Ocean Reflectometry Delay-Doppler Maps." IEEE Transactions on Geoscience and Remote Sensing (2020).*
+*Huang, Feixiong, et al. "A Forward Model for Data Assimilation of GNSS Ocean Reflectometry Delay-Doppler Maps." IEEE Transactions on Geoscience and Remote Sensing (2020). https://doi.org/10.1109/TGRS.2020.3002801*
 
 Example demonstrations and a user guide document are provided on the Code Ocean:
 
