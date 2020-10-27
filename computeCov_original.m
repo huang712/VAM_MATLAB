@@ -20,7 +20,7 @@ doppler=zeros(1,N);
 X=zeros(1,N);
 Y=zeros(1,N);
 for i=1:N
-    [delay(i),doppler(i)]=index2delayDoppler0(bin_index(i));
+    [delay(i),doppler(i)]=index2delayDoppler(bin_index(i));
     x=delay(i)-sp_delay_bin+2; %1:12
     y=doppler(i)-sp_doppler_bin+4; %1:7
     if (y<1) 

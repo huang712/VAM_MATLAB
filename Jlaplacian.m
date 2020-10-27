@@ -1,5 +1,6 @@
 function [Jlap,glap] = Jlaplacian(size,uv_ana,uv_bkg,scale_lap)
-%compute the cost function of Laplacian and its gradient
+% Compute the cost function of Laplacian and its gradient
+
 n=size*size*2;
 uv=uv_ana-uv_bkg;
 u=reshape(uv(1:n/2),[size size]);

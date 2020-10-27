@@ -1,10 +1,10 @@
 function [Jlap, dlap]= laplacian(A)
-    %A is a matrix
-    %Use five point stencil method: https://en.wikipedia.org/wiki/Discrete_Laplace_operator
+    % A is a matrix
+    % Use five point stencil method: https://en.wikipedia.org/wiki/Discrete_Laplace_operator
     
     [x,y]=size(A);
-    lap1 = zeros(x+2,y+2); %expand lap1
-    A1 = zeros(x+2,y+2); %expand A to compute finite difference
+    lap1 = zeros(x+2,y+2); % expand lap1
+    A1 = zeros(x+2,y+2); % expand A to compute finite difference
     A1(2:x+1,2:y+1)=A;
     A1(1,2:y+1)=A(1,:);
     A1(x+2,2:y+1)=A(x,:);

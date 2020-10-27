@@ -1,11 +1,12 @@
 function [flag] = qfCYG(quality_flags)
-%quality_flag: quality_flags field from CYGNSS netcdf (decimal)
-%flag: 1 - overall bad quality  
-%      0 - overall good quality 
+% quality_flag: quality_flags field from CYGNSS netcdf (decimal)
+% flag: 1 - overall bad quality  
+%       0 - overall good quality 
+
 bit = dec2bin(quality_flags,29);
 bit = fliplr(bit);
 
-if(bit(1)=='1') %overall quality
+if(bit(1)=='1') % overall quality
     flag = 1;
 else
     flag = 0;

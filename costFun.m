@@ -1,13 +1,13 @@
 function [J,g] = costFun(size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path,fm_path)
-%VAM cost function including background terms and observation terms
+% VAM cost function including background terms and observation terms
 
-%size is the number of points in one side of the region (might use global variable)
-%uv_ana & uv_bkg are vector 1xn
-%DDMobs is a 187x1 vector (can be reshape into 17x11)
-%bin_index is the index vector of effective bins
-%iR is 187x187 inverse covariance matrix of DDM
+% size is the number of points in one side of the region (might use global variable)
+% uv_ana & uv_bkg are vector 1xn
+% DDMobs is a 187x1 vector (can be reshape into 17x11)
+% bin_index is the index vector of effective bins
+% iR is 187x187 inverse covariance matrix of DDM
 
-%J = scale_bkg*sum(uv_ana-uvbkg)^2 + scale_ddm*(DDMobs-DDMfm)^2
+% J = scale_bkg*sum(uv_ana-uvbkg)^2 + scale_ddm*(DDMobs-DDMfm)^2 + Jc
 
 resolution=0.125;
 
@@ -23,27 +23,27 @@ glap=zeros(n,1);
 %% Background terms
 if (terms.bkg==1)
     Jb=scale.bkg*sum((uv_ana-uv_bkg).^2);
-    gb=2*scale.bkg*(uv_ana-uv_bkg)';  %nx1 gradient for background terms
+    gb=2*scale.bkg*(uv_ana-uv_bkg)';  % nx1 gradient for background terms
 end
 
 %% DDM terms
 if (terms.ddm==1)
-    %preapare input wind for forward model
+    % Preapare input wind for forward model
     fid1=fopen([temp_path,'uv_input.dat'],'w');
     fwrite(fid1,uv_ana,'double');
     fclose(fid1);
 
-    %run forward model
+    % Run forward model
     [status,cmdout]=system([fm_path,' ',temp_path,'config.txt']); %status=0 means the command completed successfully
     if(status~=0)
         disp('The forward model does not run successfully with cmdout:');
         disp(cmdout);
     end
-    %disp(cmdout);
+    % disp(cmdout);
     
-    %read DDMfm
+    % Read DDMfm
     fid2 = fopen([temp_path,'DDMfm.dat']);
-    DDMfm= fread(fid2,'double'); %read DDMfm 187x1
+    DDMfm= fread(fid2,'double'); % read DDMfm 187x1
     fclose(fid2);
     
     bin_index=DDM.bin_index;
@@ -53,32 +53,32 @@ if (terms.ddm==1)
     iR=DDM.iR;
     Jddm=scale.ddm*(DDMfm-DDMobs)'*iR*(DDMfm-DDMobs);
 
-    %gradient
+    % Gradient
     fid1 = fopen([temp_path,'Jacobian.dat']);
     data = fread(fid1,'double')';
     fclose(fid1);
     numDDMbins=data(1);
     numSurfacePts=data(2);
-    H=reshape(data(3:end),[numDDMbins,numSurfacePts]); %read H: 187x128
+    H=reshape(data(3:end),[numDDMbins,numSurfacePts]); % read H: 187x128
     fid1 = fopen([temp_path,'indexLL.dat']);
-    indexLL = fread(fid1,'int');  %index of the 128 points in the grid n/2; zeros based
-    indexLL=indexLL+1; %change to 1 based
+    indexLL = fread(fid1,'int');  % index of the 128 points in the grid n/2; zeros based
+    indexLL=indexLL+1; % change to 1 based
     fclose(fid1);
     
-    H=H(bin_index,:); %Nbinx128
-    u=uv_ana(1:n/2)'; %n/2x1
-    v=uv_ana(n/2+1:n)'; %n/2x1
-    ws=sqrt(u.^2+v.^2); %n/2x1
+    H=H(bin_index,:); % Nbinx128
+    u=uv_ana(1:n/2)'; % n/2x1
+    v=uv_ana(n/2+1:n)'; % n/2x1
+    ws=sqrt(u.^2+v.^2); % n/2x1
     gu=zeros(n/2,Nbin);
     gv=zeros(n/2,Nbin);
     gu(indexLL,:)=H';
     gv(indexLL,:)=H';
-    ws(ws==0)=0.01; %avoid zero wind speed
+    ws(ws==0)=0.01; % avoid zero wind speed
     for i=1:Nbin
-        gu(:,i)=gu(:,i).*(u./ws); %chain rule: from wind speed to u,v
+        gu(:,i)=gu(:,i).*(u./ws); % chain rule: from wind speed to u,v
         gv(:,i)=gv(:,i).*(v./ws);
     end
-    H_uv=[gu;gv];%nx187
+    H_uv=[gu;gv];% nx187
     gddm=scale.ddm*2*H_uv*iR*(DDMfm-DDMobs);
 end
 
@@ -86,17 +86,17 @@ end
 if (terms.L2==1)
     % L2.ws L2.lat L2.lon
 
-    %interpolate uv_ana to the wind speed observation location
+    % Interpolate uv_ana to the wind speed observation location
     u=uv_ana(1:n/2)';
-    v=uv_ana(n/2+1:n)'; %n/2x1
-    ws=sqrt(u.^2+v.^2); %n/2x1
+    v=uv_ana(n/2+1:n)'; % n/2x1
+    ws=sqrt(u.^2+v.^2); % n/2x1
     ws_2d=reshape(ws,[size size]);
     ws_ana=interp2(L2.lat_vec,L2.lon_vec,ws_2d,L2.lat,L2.lon,'linear');
     Jl2=scale.L2*(ws_ana-L2.ws)^2;
     
-    %gradient
-    %ws_ana=ws(bi_index(1))*bi_weight(1)+...+ws(bi_index(4))*bi_weight(4)
-    %ws=sqrt(u^2+v^2) .  dws=u/w*du+v/w*dv
+    % Gradient
+    % ws_ana=ws(bi_index(1))*bi_weight(1)+...+ws(bi_index(4))*bi_weight(4)
+    % ws=sqrt(u^2+v^2) .  dws=u/w*du+v/w*dv
     [bi_index, bi_weight] = bilinear_interp(lon_vec,lat_vec,L2.lon,L2.lat,resolution);
 
     gu=zeros(n/2,1);
@@ -130,7 +130,7 @@ if (terms.lap==1)
     [Jlap,glap]=Jlaplacian(size,uv_ana,uv_bkg,scale.lap);
 end
 
-%%
+%% Sum all terms
 J=Jb+Jddm+Jl2+Jdiv+Jvor+Jlap;
 g=gb+gddm+gl2+gdiv+gvor+glap;
 disp(['J = ',num2str(J),', Jb = ',num2str(Jb),', Jddm = ',num2str(Jddm), ', Jl2 = ',num2str(Jl2),...

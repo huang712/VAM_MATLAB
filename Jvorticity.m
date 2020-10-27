@@ -1,6 +1,6 @@
 function [Jvor,gvor] = Jvorticity(size,uv_ana,uv_bkg,scale_vor)
-%compute the cost function of vorticity and its gradient
-%gvor(size*size*2,1)
+% Compute the cost function of vorticity and its gradient
+% gvor(size*size*2,1)
 
 n=size*size*2;
 uv=uv_ana-uv_bkg;
@@ -10,7 +10,7 @@ vor=curl(u,v);
 vor=vor.^2;
 Jvor=scale_vor*sum(sum(vor));
 
-%gradient
+% Gradient
 du=zeros(size,size);
 dv=zeros(size,size);
 

@@ -1,27 +1,27 @@
 function iR = computeCov(DDMobs,bin_index,sp_delay_bin,sp_doppler_bin,sp_ws,method,k_max)
-% compute DDMcovariance matrix using the empirical model
+% Compute DDMcovariance matrix using the empirical model
 % iR: inverse of the DDM covariance matrix
 % DDMobs in vector
 % bin_index: index of 187[17x11] of effective bins
 % sp_ws: wind speed
 
 load('Covariance_parameter_ERA5.mat','sigma2_n','A','B','correlationAB','A1','B1','C1');
-%delay=-1:10 doppler=-3:3 in parameters
-%A 12x7 
-%A1,B1,C1: 84x84
+% delay=-1:10 doppler=-3:3 in parameters
+% A 12x7 
+% A1,B1,C1: 84x84
 
-N=length(bin_index); %number of effective bins
+N=length(bin_index); % number of effective bins
 R=zeros(N,N);
 
-%% find delay,doppler of the effective bins and index (X,Y) in the matrix 12x7
+%% Find delay, doppler of the effective bins and index (X,Y) in the matrix 12x7
 delay=zeros(1,N);
 doppler=zeros(1,N);
 X=zeros(1,N);
 Y=zeros(1,N);
 for i=1:N
-    [delay(i),doppler(i)]=index2delayDoppler0(bin_index(i));
-    x=delay(i)-sp_delay_bin+2; %1:12
-    y=doppler(i)-sp_doppler_bin+4; %1:7
+    [delay(i),doppler(i)]=index2delayDoppler(bin_index(i));
+    x=delay(i)-sp_delay_bin+2; % 1:12
+    y=doppler(i)-sp_doppler_bin+4; % 1:7
     if (y<1) 
         y=1;
     elseif (y>7) 
@@ -50,9 +50,9 @@ Y=round(Y);
 a=zeros(1,N);
 b=zeros(1,N);
 
-%find a in A(12,7) using delay,doppler and sp index
+% Find a in A(12,7) using delay,doppler and sp index
 for i=1:N
-    %find index of [12,7] with respect to sp_delay_bin and sp_doppler_bin   
+    % find index of [12,7] with respect to sp_delay_bin and sp_doppler_bin   
     if (X(i)==1 && Y(i)==1)
         a(i)=(A(2,1)+A(1,2))/2;
         b(i)=(B(2,1)+B(1,2))/2;
@@ -60,38 +60,38 @@ for i=1:N
         a(i)=(A(2,7)+A(1,6))/2;
         b(i)=(B(2,7)+B(1,6))/2;
     else
-        a(i) = A(X(i),Y(i)); %% nonlinear model, don't use interpolation
+        a(i) = A(X(i),Y(i)); % nonlinear model, don't use interpolation
         b(i) = B(X(i),Y(i));
     end   
 end
 %disp(['delay = ',num2str(delay(i)),'; doppler(i) = ',num2str(doppler(i)),'; a = ',num2str(a(i))]);
 
-sigma2=(a.*DDMobs(bin_index)'.^b).^2+sigma2_n; %1XN
+sigma2=(a.*DDMobs(bin_index)'.^b).^2+sigma2_n; % 1XN
 sigma=sqrt(sigma2);
 R(logical(eye(N)))=sigma2';
 
-if (strcmp(method,'diag')) %diagonal matrix
+if (strcmp(method,'diag')) % diagonal matrix
     iR=inv(R);
     return;
 end
 
 %% Compute off-diagonal values R(N,N)
-%sigma_ij=sigma_i*sigma_j*f
+% sigma_ij=sigma_i*sigma_j*f
 for i=1:N-1
     for j=i+1:N
-        index1=12*(Y(i)-1)+X(i); %1-84
-        index2=12*(Y(j)-1)+X(j); %1-84
+        index1=12*(Y(i)-1)+X(i); % 1-84
+        index2=12*(Y(j)-1)+X(j); % 1-84
         a1=A1(index1,index2);
         b1=B1(index1,index2);
         c1=C1(index1,index2);
-        f=a1+b1/sp_ws+c1/(sp_ws^2); %f=0;
-        R(i,j)=sigma(i)*sigma(j)*f; %NXN
+        f=a1+b1/sp_ws+c1/(sp_ws^2); % f=0;
+        R(i,j)=sigma(i)*sigma(j)*f; % NXN
         R(j,i)=R(i,j);
     end
 end
 
-%% recondition method
-if (strcmp(method,'RR')) %ridge regression
+%% Recondition method
+if (strcmp(method,'RR')) % Ridge regression
     lambda=eig(R);
     delta=(max(lambda)-min(lambda)*k_max)/(k_max-1);
     R1=R+delta*eye(N);
@@ -99,7 +99,7 @@ elseif (strcmp(method,'ME')) % Minimum eigenvalue
     [V,D] = eig(R);
     lambda=diag(D);
     D1=zeros(N,N);
-    T=max(abs(lambda))/k_max; %threshold eigenvalue
+    T=max(abs(lambda))/k_max; % threshold eigenvalue
     for i=1:N
         if (abs(lambda(i))>T)
             D1(i,i)=abs(lambda(i));
@@ -110,7 +110,7 @@ elseif (strcmp(method,'ME')) % Minimum eigenvalue
     R1=V*D1*V';
 end
 
-%% compute inverse
+%% Compute inverse
 iR=pinv(R1);
 
 
