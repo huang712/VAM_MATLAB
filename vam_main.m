@@ -7,7 +7,7 @@ disp(['scNum = ',num2str(L1.scNum),'; PRN = ',num2str(L1.prn_code),'; ddm_index 
 
 % First Quality control 
 %----------------------------------------------------------------------
-if (qfCYG(L1.flags)~=0) 
+if (mod(L1.flags,2)~=0) % qfCYG(L1.flags)~=0
     disp('Poor overall quality');
     return;
 end
@@ -64,11 +64,11 @@ uv_ana = uv_bkg;
 
 % Write info to config file for Forward model to read
 fid=fopen([temp_path,'config.txt'],'w');
-fprintf(fid,'%s\n',[temp_path,'uv_input.dat']); %wind field data
+fprintf(fid,'%s\n',[temp_path,'uv_input.dat']); % wind field data
 fprintf(fid,'%s\n',L1.filename);
-fprintf(fid,'%s\n',temp_path);  %path to save DDMfm, Jacobian and indexLL
-fprintf(fid,'ddmIndex    = %d\n',L1.ddm_index-1);  %zero based
-fprintf(fid,'sampleIndex = %d\n',L1.index-1);  %zero based
+fprintf(fid,'%s\n',temp_path);  % path to save DDMfm, Jacobian and indexLL
+fprintf(fid,'ddmIndex    = %d\n',L1.ddm_index-1);  % zero based
+fprintf(fid,'sampleIndex = %d\n',L1.index-1);  % zero based
 fprintf(fid,'numPtsLon   = %d\n',nlon);  
 fprintf(fid,'numPtsLat   = %d\n',nlat);
 fprintf(fid,'lon_min_deg = %.3f\n',BKG.LON_vec(splon_index-k));
@@ -131,13 +131,13 @@ L2.lat_vec = lat_vec;
 % Disp('Compute initial cost function')
 
 [J0,g0]=costFun(int_size,uv_ana,uv_bkg,terms,scale,DDM,L2,temp_path,fm_path);
-movefile([temp_path,'DDMfm.dat'],[temp_path,'DDMfm0.dat'])  %simulated DDM from background
+movefile([temp_path,'DDMfm.dat'],[temp_path,'DDMfm0.dat'])  % simulated DDM from background
 
 % Second quality control: compare DDMobs and DDMfm0 187*1
 %----------------------------------------------------------------------
 % 1. absolute average relative power difference  2. correlation coefficient
 fid=fopen([temp_path,'DDMfm0.dat']);
-DDMfm0 = fread(fid,'double'); %read DDMfm 187x1
+DDMfm0 = fread(fid,'double'); % read DDMfm 187x1
 fclose(fid);
 
 % relative power difference
